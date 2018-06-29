@@ -1,0 +1,29 @@
+{
+  "name": "redis-type",
+  "version": "0.0.1",
+  "description": "Redis type wrapper",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/damirka/redis-type.git"
+  },
+  "keywords": [
+    "redis",
+    "type",
+    "hash",
+    "list",
+    "set",
+    "get",
+    "promise",
+    "redis-promise"
+  ],
+  "author": "Damir Shamanaev <damirka.ru@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/damirka/redis-type/issues"
+  },
+  "homepage": "https://github.com/damirka/redis-type#readme"
+}
