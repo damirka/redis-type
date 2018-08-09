@@ -4,7 +4,7 @@
   "description": "Redis type wrapper",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "docs": "jsdoc -c .jsdocrc.json"
   },
   "repository": {
     "type": "git",
@@ -25,5 +25,9 @@
   "bugs": {
     "url": "https://github.com/damirka/redis-type/issues"
   },
-  "homepage": "https://github.com/damirka/redis-type#readme"
+  "homepage": "https://github.com/damirka/redis-type#readme",
+  "dependencies": {
+    "jsdoc": "^3.5.5",
+    "redis": "^2.8.0"
+  }
 }
