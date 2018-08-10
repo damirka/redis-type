@@ -1,6 +1,6 @@
 {
   "name": "redis-type",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Redis type wrapper",
   "main": "index.js",
   "scripts": {
