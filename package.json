@@ -1,6 +1,6 @@
 {
   "name": "redis-type",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Redis type wrapper",
   "main": "index.js",
   "scripts": {
@@ -18,6 +18,7 @@
     "set",
     "get",
     "promise",
+    "redis-array",
     "redis-promise"
   ],
   "author": "Damir Shamanaev <damirka.ru@gmail.com>",
@@ -26,8 +27,8 @@
     "url": "https://github.com/damirka/redis-type/issues"
   },
   "homepage": "https://github.com/damirka/redis-type#readme",
-  "dependencies": {
-    "jsdoc": "^3.5.5",
-    "redis": "^2.8.0"
+  "dependencies": {},
+  "devDependencies": {
+    "jsdoc": "^3.5.5"
   }
 }
