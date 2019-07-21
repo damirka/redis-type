@@ -29,6 +29,7 @@
   "homepage": "https://github.com/damirka/redis-type#readme",
   "dependencies": {},
   "devDependencies": {
+    "braintree-jsdoc-template": "^3.3.0",
     "jsdoc": "^3.5.5"
   }
 }

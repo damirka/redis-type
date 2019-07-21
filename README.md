@@ -1,4 +1,6 @@
-# redis-type - Redis type wrapper  
+# redis-type - redis type wrapper  
+
+[Full API Reference](https://damirka.github.io/redis-type/)
 
 This small library gives you Promises and (!) JS-like wrappers for Redis types.
 ```
