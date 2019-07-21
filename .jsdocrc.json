@@ -20,6 +20,6 @@
     "templates": {
         "referenceTitle": "redis-type API",
         "disableSort": true,
-        "collapse": true
+        "collapse": false
     }
 }
