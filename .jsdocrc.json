@@ -2,9 +2,11 @@
     "plugins": ["plugins/markdown"],
     "source": {
         "include": [
+            "README.md",
             "lib/wrapper.js",
             "lib/list.js",
-            "lib/hash.js"
+            "lib/hash.js",
+            "lib/set.js"
         ]
     },
     "opts": {
