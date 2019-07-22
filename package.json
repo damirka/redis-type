@@ -3,6 +3,9 @@
   "version": "0.2.5",
   "description": "Redis type wrapper",
   "main": "index.js",
+  "files": [
+      "/lib"
+  ],
   "scripts": {
     "docs": "jsdoc -c .jsdocrc.json"
   },
