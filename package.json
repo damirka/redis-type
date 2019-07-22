@@ -4,10 +4,11 @@
   "description": "Redis type wrapper",
   "main": "index.js",
   "files": [
-      "/lib"
+    "/lib"
   ],
   "scripts": {
-    "docs": "jsdoc -c .jsdocrc.json"
+    "docs": "jsdoc -c .jsdocrc",
+    "lint": "eslint -c .eslintrc lib"
   },
   "repository": {
     "type": "git",
@@ -33,6 +34,7 @@
   "dependencies": {},
   "devDependencies": {
     "braintree-jsdoc-template": "^3.3.0",
+    "eslint": "^6.1.0",
     "jsdoc": "^3.5.5"
   }
 }
