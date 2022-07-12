@@ -1,6 +1,6 @@
 {
   "name": "redis-type",
-  "version": "0.2.6",
+  "version": "0.3.0",
   "description": "Redis type wrapper",
   "main": "index.js",
   "files": [
@@ -35,6 +35,7 @@
   "devDependencies": {
     "braintree-jsdoc-template": "^3.3.0",
     "eslint": "^6.1.0",
-    "jsdoc": "^3.5.5"
+    "jsdoc": "^3.5.5",
+    "redis": "^4.2.0"
   }
 }
