@@ -24,13 +24,16 @@ export { json as toJSON };
  * @param  {Object} obj Object to parse values of
  * @return {Object}     Object with parsed values
  */
-export function parseObjectValues(obj: { [key: string]: string }): { [key: string]: any } {
-    (obj !== null) && Object.keys(obj).forEach(function (prop) {
-        obj[prop] = parse(obj[prop]);
+export function parseObjectValues(obj: {
+  [key: string]: string;
+}): { [key: string]: any } {
+  obj !== null &&
+    Object.keys(obj).forEach(function(prop) {
+      obj[prop] = parse(obj[prop]);
     });
 
-    return obj;
-};
+  return obj;
+}
 
 /**
  * If you need to apply operation like HMSET and you need to encode/stringify
@@ -39,13 +42,16 @@ export function parseObjectValues(obj: { [key: string]: string }): { [key: strin
  * @param  {Object} obj Object to JSON it's values
  * @return {Object}     Object with JSON-ed values
  */
-export function stringifyObjectValues(obj: { [key: string]: any }): { [key: string]: string } {
-    (obj !== null) && Object.keys(obj).forEach(function (prop) {
-        obj[prop] = json(obj[prop]);
+export function stringifyObjectValues(obj: {
+  [key: string]: any;
+}): { [key: string]: string } {
+  obj !== null &&
+    Object.keys(obj).forEach(function(prop) {
+      obj[prop] = json(obj[prop]);
     });
 
-    return obj;
-};
+  return obj;
+}
 
 /**
  * Parse Array of JSON strings
@@ -54,5 +60,5 @@ export function stringifyObjectValues(obj: { [key: string]: any }): { [key: stri
  * @return {Array}     Array of mapped values
  */
 export function parseArray(arr: string[]): any[] {
-    return arr.map((el) => parse(el));
-};
+  return arr.map(el => parse(el));
+}

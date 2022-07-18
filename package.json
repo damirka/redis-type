@@ -1,28 +1,4 @@
 {
-  "_from": "redis-type@0.3.0",
-  "_id": "redis-type@0.3.0",
-  "_inBundle": false,
-  "_integrity": "sha512-ORH2DT8Q7PBuLSy6IJ18wwM9qrr56yTy/H5ZspTHNz0XD0rWgXdBifZW8mwGJ4vaH+NWyMvLwh/csofftllQHQ==",
-  "_location": "/redis-type",
-  "_phantomChildren": {},
-  "_requested": {
-    "type": "version",
-    "registry": true,
-    "raw": "redis-type@0.3.0",
-    "name": "redis-type",
-    "escapedName": "redis-type",
-    "rawSpec": "0.3.0",
-    "saveSpec": null,
-    "fetchSpec": "0.3.0"
-  },
-  "_requiredBy": [
-    "#USER",
-    "/"
-  ],
-  "_resolved": "https://registry.npmjs.org/redis-type/-/redis-type-0.3.0.tgz",
-  "_shasum": "177a47cabbf296077e28ab70a5b987d76848e3b6",
-  "_spec": "redis-type@0.3.0",
-  "_where": "/Users/dam/projects/mysten/sui-capybaras/web",
   "author": {
     "name": "Damir Shamanaev",
     "email": "damirka.ru@gmail.com"
@@ -39,11 +15,9 @@
     "eslint": "^6.1.0",
     "jsdoc": "^3.5.5",
     "redis": "^4.2.0",
-    "tsdx": "^0.14.1"
+    "tslib": "^2.4.0",
+    "typescript": "^4.7.4"
   },
-  "files": [
-    "/lib"
-  ],
   "homepage": "https://github.com/damirka/redis-type#readme",
   "keywords": [
     "redis",
@@ -65,9 +39,7 @@
     "url": "git+https://github.com/damirka/redis-type.git"
   },
   "scripts": {
-    "docs": "jsdoc -c .jsdocrc.json",
-    "lint": "eslint -c .eslintrc lib",
-    "prepublish": "tsdx build"
+    "prepublish": "tsc"
   },
-  "version": "0.3.0"
+  "version": "0.4.2"
 }

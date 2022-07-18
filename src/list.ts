@@ -25,11 +25,9 @@
  * - **RPOPLPUSH**
  */
 
-'use strict';
-
-import { Base } from './base';
-import * as json from './json';
-import { StringOrObject } from './types';
+import { Base } from "./base";
+import * as json from "./json";
+import { StringOrObject } from "./types";
 
 /**
  * Class to handle Redis LIST type.
@@ -61,290 +59,292 @@ import { StringOrObject } from './types';
  * @extends Wrapper
  */
 export class List extends Base {
+  /**
+   * Get length of a list
+   *
+   * - Redis command: [LLEN]{@link https://redis.io/commands/llen}
+   * - JavaScript analogy: [Array.length]{@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/length}
+   *
+   * @example
+   * (async () => {
+   *
+   *   let len = await list.length();
+   *
+   * })()
+   *
+   * @return {Promise<Number>} Length of the list
+   */
+  length(): Promise<number> {
+    return this.call("LLEN")();
+  }
 
-    /**
-     * Get length of a list
-     *
-     * - Redis command: [LLEN]{@link https://redis.io/commands/llen}
-     * - JavaScript analogy: [Array.length]{@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/length}
-     *
-     * @example
-     * (async () => {
-     *
-     *   let len = await list.length();
-     *
-     * })()
-     *
-     * @return {Promise<Number>} Length of the list
-     */
-    length(): Promise<number> {
-        return this.call('LLEN')();
+  /**
+   * Remove and get first element of the list
+   *
+   * - Redis command: [LPOP]{@link https://redis.io/commands/lpop}
+   * - JavaScript analogy: [Array.prototype.shift]{@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/shift}
+   *
+   * @example
+   * (async () => {
+   *
+   *   await list.push(1, 2, 3);       // fill list with values
+   *   let first = await list.shift(); // gonna be 1 and list will contain [2, 3]
+   *
+   * })()
+   *
+   * @return {Promise<Object|String>} Shifted value (Object when useJSON=true or String)
+   */
+  shift(): Promise<StringOrObject> {
+    return this.useJSON
+      ? this.call("LPOP")().then(json.parse)
+      : this.call("LPOP")();
+  }
+
+  /**
+   * Remove and get last element
+   *
+   * - Redis command: [RPOP]{@link https://redis.io/commands/rpop}
+   * - JavaScript analogy: [Array.prototype.pop]{@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/pop}
+   *
+   * @example
+   * (async () => {
+   *
+   *   await list.push(1, 2, 3);    // fill list with values
+   *   let last = await list.pop(); // gonna be 3 and list will contain [1, 2]
+   *
+   * })()
+   *
+   * @return {Promise<Object|String>} Popped value (Object when useJSON=true or String)
+   */
+  pop(): Promise<StringOrObject> {
+    return this.useJSON
+      ? this.call("RPOP")().then(json.parse)
+      : this.call("RPOP")();
+  }
+
+  /**
+   * Prepend list with element(s)
+   *
+   * - Redis command: [LPUSH]{@link https://redis.io/commands/lpush}
+   * - JavaScript analogy: [Array.prototype.unshift]{@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift}
+   *
+   * @example
+   * (async () => {
+   *
+   *   await list.unshift(1);    // list [1]
+   *   await list.unshift(3, 2); // list [3, 2, 1] - just like an Array in JS
+   *
+   * })()
+   *
+   * @param  {String}  ...els Element(s) to push in the beginning
+   */
+  unshift(...els: StringOrObject[]): Promise<void> {
+    return this.useJSON
+      ? this.call("LPUSH").apply(
+          this,
+          els.reverse().map(e => json.toJSON(e))
+        )
+      : this.call("LPUSH").apply(this, els.reverse());
+  }
+
+  /**
+   * Push element(s) to the end of the list
+   *
+   * - Redis command: [RPUSH]{@link https://redis.io/commands/rpush}
+   * - JavaScript analogy: [Array.prototype.push]{@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/push}
+   *
+   * @example
+   * (async () => {
+   *
+   *   await list.push(1, 2, 3, 4); // return value: 4
+   *   await list.push(1);          // return value: 5
+   *
+   * })();
+   *
+   * @param  {String}         ...els Element(s) to push
+   * @return {Promise<Number>}       Resulting length of the list
+   */
+  push(...els: StringOrObject[]): Promise<number> {
+    return this.useJSON
+      ? this.call("RPUSH").apply(
+          this,
+          els.map(e => json.toJSON(e))
+        )
+      : this.call("RPUSH").apply(this, els);
+  }
+
+  /**
+   * Get range of elements with BEGIN-END arguments
+   *
+   * - Redis command: [LRANGE]{@link https://redis.io/commands/lrange}
+   * - JavaScript analogy: [Array.prototype.slice]{@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice}
+   *
+   * Supports just the same interface as Array does.
+   *
+   * @example
+   * (async () => {
+   *
+   *   await list.push(1, 2, 3, 4, 5);
+   *
+   *   let one   = await list.slice();    // gonna be [1, 2, 3, 4, 5]
+   *   let two   = await list.slice(1);   // gonna be [2, 3, 4, 5]
+   *   let three = await list.slice(-2);  // gonna be [4, 5]
+   *   let four  = await list.slice(1, 3) // gonna be [2, 3]
+   *
+   * })()
+   *
+   * @param  {Number}         [begin=0]  Start point index
+   * @param  {Number}         [end=null] End point index
+   * @return {Promise<Array>}            Resulting slice of List for given params
+   */
+  slice(begin = 0, end: number | null = null): Promise<string[] | object[]> {
+    switch (true) {
+      case end === null && begin < 0:
+        end = -1;
+        break;
+      case end === null && begin === 0:
+        begin = 0;
+        end = -1;
+        break;
+      case end === null:
+        end = -1;
+        break;
+      case end !== null:
+        // @ts-ignore
+        end -= 1;
     }
 
-    /**
-     * Remove and get first element of the list
-     *
-     * - Redis command: [LPOP]{@link https://redis.io/commands/lpop}
-     * - JavaScript analogy: [Array.prototype.shift]{@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/shift}
-     *
-     * @example
-     * (async () => {
-     *
-     *   await list.push(1, 2, 3);       // fill list with values
-     *   let first = await list.shift(); // gonna be 1 and list will contain [2, 3]
-     *
-     * })()
-     *
-     * @return {Promise<Object|String>} Shifted value (Object when useJSON=true or String)
-     */
-    shift(): Promise<StringOrObject> {
-        return this.useJSON
-            ? this.call('LPOP')().then(json.parse)
-            : this.call('LPOP')();
-    }
+    return this.useJSON
+      ? this.call("LRANGE")(begin, end).then(json.parseArray)
+      : this.call("LRANGE")(begin, end);
+  }
 
-    /**
-     * Remove and get last element
-     *
-     * - Redis command: [RPOP]{@link https://redis.io/commands/rpop}
-     * - JavaScript analogy: [Array.prototype.pop]{@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/pop}
-     *
-     * @example
-     * (async () => {
-     *
-     *   await list.push(1, 2, 3);    // fill list with values
-     *   let last = await list.pop(); // gonna be 3 and list will contain [1, 2]
-     *
-     * })()
-     *
-     * @return {Promise<Object|String>} Popped value (Object when useJSON=true or String)
-     */
-    pop(): Promise<StringOrObject> {
-        return this.useJSON
-            ? this.call('RPOP')().then(json.parse)
-            : this.call('RPOP')();
-    }
+  /**
+   * Insert element after the element with given value (as String)
+   *
+   * - Redis command: [LINSERT AFTER]{@link https://redis.io/commands/linsert}
+   * - JavaScript analogy: none
+   *
+   * @example
+   * (async () => {
+   *
+   *   await list.push('a', 'c', 'd');
+   *   await list.insertAfter('a', 'b'); // returned value: 4, list: [a, b, c, d]
+   *
+   * })()
+   *
+   * @param  {Number}          key Key to insert after
+   * @param  {String}          el  Element to insert
+   * @return {Promise<Number>}     Resulting list length
+   */
+  insertAfter(key: string, el: StringOrObject): Promise<number> {
+    return this.useJSON
+      ? this.call("LINSERT")("after", key, json.toJSON(el))
+      : this.call("LINSERT")("after", key, el);
+  }
 
-    /**
-     * Prepend list with element(s)
-     *
-     * - Redis command: [LPUSH]{@link https://redis.io/commands/lpush}
-     * - JavaScript analogy: [Array.prototype.unshift]{@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift}
-     *
-     * @example
-     * (async () => {
-     *
-     *   await list.unshift(1);    // list [1]
-     *   await list.unshift(3, 2); // list [3, 2, 1] - just like an Array in JS
-     *
-     * })()
-     *
-     * @param  {String}  ...els Element(s) to push in the beginning
-     */
-    unshift(...els: StringOrObject[]): Promise<void> {
-        return this.useJSON
-            ? this.call('LPUSH').apply(this, els.reverse().map((e) => json.toJSON(e)))
-            : this.call('LPUSH').apply(this, els.reverse());
-    }
+  /**
+   * Insert elenent before the elemnt with given index
+   *
+   * - Redis command: [LINSERT BEFORE]{@link https://redis.io/commands/linsert}
+   * - JavaScript analogy: none
+   *
+   * @example
+   * (async () => {
+   *
+   *   await list.push('a', 'c', 'd');
+   *   await list.insertBefore('c', 'b'); // returned value: 4, list: [a, b, c, d]
+   *
+   * })()
+   *
+   * @param  {Number}          key Key to insert after
+   * @param  {String}          el  Element to insert
+   * @return {Promise<Number>}     Resulting list length
+   */
+  insertBefore(key: number, el: StringOrObject): Promise<number> {
+    return this.useJSON
+      ? this.call("LINSERT")("before", key, json.toJSON(el))
+      : this.call("LINSERT")("before", key, el);
+  }
 
-    /**
-     * Push element(s) to the end of the list
-     *
-     * - Redis command: [RPUSH]{@link https://redis.io/commands/rpush}
-     * - JavaScript analogy: [Array.prototype.push]{@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/push}
-     *
-     * @example
-     * (async () => {
-     *
-     *   await list.push(1, 2, 3, 4); // return value: 4
-     *   await list.push(1);          // return value: 5
-     *
-     * })();
-     *
-     * @param  {String}         ...els Element(s) to push
-     * @return {Promise<Number>}       Resulting length of the list
-     */
-    push(...els: StringOrObject[]): Promise<number> {
-        return this.useJSON
-            ? this.call('RPUSH').apply(this, els.map((e) => json.toJSON(e)))
-            : this.call('RPUSH').apply(this, els);
-    }
+  /**
+   * Get element at the given index
+   *
+   * - Redis command: [LINDEX]{@link https://redis.io/commands/lindex}
+   * - JavaScript analogy: none | or Array[index]
+   *
+   * @example
+   * (async () => {
+   *
+   *   await list.push('a', 'b', 'c', 'd');
+   *   let el1 = await list.getElementAt(0);   // value: 'a'
+   *   let el2 = await list.getElementAt(-1);  // value: 'd'
+   *   let el3 = await list.getElementAt(100); // value: null
+   *
+   * })()
+   *
+   * @param  {Number}                 index Index to get element at
+   * @return {Promise<?String|Object>}      Value under given index or null
+   */
+  getElementAt(index: number): Promise<StringOrObject> {
+    return this.useJSON
+      ? this.call("LINDEX")(index).then(json.parse)
+      : this.call("LINDEX")(index);
+  }
 
+  /**
+   * Set element at given index
+   *
+   * - Redis command: [LSET]{@link https://redis.io/commands/lset}
+   * - JavaScript analogy: none | or Array[index] = value
+   *
+   * @example
+   * (async () => {
+   *
+   *   await list.push('a', 'b', 'c', 'd');
+   *   await list.setElementAt(0, 'd');     // OK, list is [d, b, c, d]
+   *   await list.setElementAt(1, 'd');     // OK, list is [d, d, c, d]
+   *   await list.setElementAt(2, 'd');     // OK, list is [d, d, d, d]
+   *
+   *   await list.setElementAt(100, 'd').catch((e) => console.log(e)); // err: index out of range
+   *
+   * })()
+   *
+   * @param  {Number}          index Index to set el at
+   * @param  {String}          value Value to set at given index
+   * @return {Promise<String>}       OK String
+   *
+   * @throws {Error} When index is out of range (AKA greater than list.length())
+   */
+  setElementAt(index: number, value: StringOrObject): Promise<void> {
+    return this.useJSON
+      ? this.call("LSET")(index, json.toJSON(value))
+      : this.call("LSET")(index, value);
+  }
 
-    /**
-     * Get range of elements with BEGIN-END arguments
-     *
-     * - Redis command: [LRANGE]{@link https://redis.io/commands/lrange}
-     * - JavaScript analogy: [Array.prototype.slice]{@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice}
-     *
-     * Supports just the same interface as Array does.
-     *
-     * @example
-     * (async () => {
-     *
-     *   await list.push(1, 2, 3, 4, 5);
-     *
-     *   let one   = await list.slice();    // gonna be [1, 2, 3, 4, 5]
-     *   let two   = await list.slice(1);   // gonna be [2, 3, 4, 5]
-     *   let three = await list.slice(-2);  // gonna be [4, 5]
-     *   let four  = await list.slice(1, 3) // gonna be [2, 3]
-     *
-     * })()
-     *
-     * @param  {Number}         [begin=0]  Start point index
-     * @param  {Number}         [end=null] End point index
-     * @return {Promise<Array>}            Resulting slice of List for given params
-     */
-    slice(begin = 0, end: number | null = null): Promise<string[] | object[]> {
-
-        switch (true) {
-            case (end === null && begin < 0):
-                end = -1;
-                break;
-            case (end === null && begin === 0):
-                begin = 0; end = -1;
-                break;
-            case (end === null):
-                end = -1;
-                break;
-            case (end !== null):
-                // @ts-ignore
-                end -= 1;
-        }
-
-        return this.useJSON
-            ? this.call('LRANGE')(begin, end).then(json.parseArray)
-            : this.call('LRANGE')(begin, end);
-    }
-
-    /**
-     * Insert element after the element with given value (as String)
-     *
-     * - Redis command: [LINSERT AFTER]{@link https://redis.io/commands/linsert}
-     * - JavaScript analogy: none
-     *
-     * @example
-     * (async () => {
-     *
-     *   await list.push('a', 'c', 'd');
-     *   await list.insertAfter('a', 'b'); // returned value: 4, list: [a, b, c, d]
-     *
-     * })()
-     *
-     * @param  {Number}          key Key to insert after
-     * @param  {String}          el  Element to insert
-     * @return {Promise<Number>}     Resulting list length
-     */
-    insertAfter(key: string, el: StringOrObject): Promise<number> {
-        return this.useJSON
-            ? this.call('LINSERT')('after', key, json.toJSON(el))
-            : this.call('LINSERT')('after', key, el);
-    }
-
-    /**
-     * Insert elenent before the elemnt with given index
-     *
-     * - Redis command: [LINSERT BEFORE]{@link https://redis.io/commands/linsert}
-     * - JavaScript analogy: none
-     *
-     * @example
-     * (async () => {
-     *
-     *   await list.push('a', 'c', 'd');
-     *   await list.insertBefore('c', 'b'); // returned value: 4, list: [a, b, c, d]
-     *
-     * })()
-     *
-     * @param  {Number}          key Key to insert after
-     * @param  {String}          el  Element to insert
-     * @return {Promise<Number>}     Resulting list length
-     */
-    insertBefore(key: number, el: StringOrObject): Promise<number> {
-        return this.useJSON
-            ? this.call('LINSERT')('before', key, json.toJSON(el))
-            : this.call('LINSERT')('before', key, el);
-    }
-
-    /**
-     * Get element at the given index
-     *
-     * - Redis command: [LINDEX]{@link https://redis.io/commands/lindex}
-     * - JavaScript analogy: none | or Array[index]
-     *
-     * @example
-     * (async () => {
-     *
-     *   await list.push('a', 'b', 'c', 'd');
-     *   let el1 = await list.getElementAt(0);   // value: 'a'
-     *   let el2 = await list.getElementAt(-1);  // value: 'd'
-     *   let el3 = await list.getElementAt(100); // value: null
-     *
-     * })()
-     *
-     * @param  {Number}                 index Index to get element at
-     * @return {Promise<?String|Object>}      Value under given index or null
-     */
-    getElementAt(index: number): Promise<StringOrObject> {
-        return this.useJSON
-            ? this.call('LINDEX')(index).then(json.parse)
-            : this.call('LINDEX')(index);
-    }
-
-    /**
-     * Set element at given index
-     *
-     * - Redis command: [LSET]{@link https://redis.io/commands/lset}
-     * - JavaScript analogy: none | or Array[index] = value
-     *
-     * @example
-     * (async () => {
-     *
-     *   await list.push('a', 'b', 'c', 'd');
-     *   await list.setElementAt(0, 'd');     // OK, list is [d, b, c, d]
-     *   await list.setElementAt(1, 'd');     // OK, list is [d, d, c, d]
-     *   await list.setElementAt(2, 'd');     // OK, list is [d, d, d, d]
-     *
-     *   await list.setElementAt(100, 'd').catch((e) => console.log(e)); // err: index out of range
-     *
-     * })()
-     *
-     * @param  {Number}          index Index to set el at
-     * @param  {String}          value Value to set at given index
-     * @return {Promise<String>}       OK String
-     *
-     * @throws {Error} When index is out of range (AKA greater than list.length())
-     */
-    setElementAt(index: number, value: StringOrObject): Promise<void>{
-        return this.useJSON
-            ? this.call('LSET')(index, json.toJSON(value))
-            : this.call('LSET')(index, value);
-    }
-
-    /**
-     * Trim list in the given begin-end range
-     *
-     * - Redis command: [LTRIM]{@link https://redis.io/commands/ltrim}
-     * - JavaScript analogy: none; maybe Array.prototype.slice()
-     *
-     * Indexes you specify are included (0, 0) - one element, (0, 1) - 2 elements
-     *
-     * @example
-     * (async () => {
-     *
-     *   await list.push(1, 2, 3, 4);
-     *   await list.trim(0, -1);        // list [1,2,3,4] - the same
-     *   await list.trim(-3, -1);       // list [2,3,4]   - from the end
-     *   await list.trim(0, 1);         // list [2,3]     - from the start
-     *
-     * })()
-     *
-     * @param  {Number}          begin Start index
-     * @param  {Number}          end   End index
-     * @return {Promise<String>}       OK String when success
-     */
-    trim(begin: number, end: number): Promise<void> {
-        return this.call('LTRIM')(begin, end);
-    }
+  /**
+   * Trim list in the given begin-end range
+   *
+   * - Redis command: [LTRIM]{@link https://redis.io/commands/ltrim}
+   * - JavaScript analogy: none; maybe Array.prototype.slice()
+   *
+   * Indexes you specify are included (0, 0) - one element, (0, 1) - 2 elements
+   *
+   * @example
+   * (async () => {
+   *
+   *   await list.push(1, 2, 3, 4);
+   *   await list.trim(0, -1);        // list [1,2,3,4] - the same
+   *   await list.trim(-3, -1);       // list [2,3,4]   - from the end
+   *   await list.trim(0, 1);         // list [2,3]     - from the start
+   *
+   * })()
+   *
+   * @param  {Number}          begin Start index
+   * @param  {Number}          end   End index
+   * @return {Promise<String>}       OK String when success
+   */
+  trim(begin: number, end: number): Promise<void> {
+    return this.call("LTRIM")(begin, end);
+  }
 }
-
-module.exports = exports = List;
