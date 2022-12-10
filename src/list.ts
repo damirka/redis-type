@@ -58,7 +58,7 @@ import { StringOrObject } from "./types";
  *
  * @extends Wrapper
  */
-export class List extends Base {
+export class List<T> extends Base {
   /**
    * Get length of a list
    *
@@ -94,7 +94,7 @@ export class List extends Base {
    *
    * @return {Promise<Object|String>} Shifted value (Object when useJSON=true or String)
    */
-  shift(): Promise<StringOrObject> {
+  shift(): Promise<T> {
     return this.useJSON
       ? this.call("LPOP")().then(json.parse)
       : this.call("LPOP")();
@@ -116,7 +116,7 @@ export class List extends Base {
    *
    * @return {Promise<Object|String>} Popped value (Object when useJSON=true or String)
    */
-  pop(): Promise<StringOrObject> {
+  pop(): Promise<T> {
     return this.useJSON
       ? this.call("RPOP")().then(json.parse)
       : this.call("RPOP")();
@@ -138,7 +138,7 @@ export class List extends Base {
    *
    * @param  {String}  ...els Element(s) to push in the beginning
    */
-  unshift(...els: StringOrObject[]): Promise<void> {
+  unshift(...els: T[]): Promise<void> {
     return this.useJSON
       ? this.call("LPUSH").apply(
           this,
@@ -164,7 +164,7 @@ export class List extends Base {
    * @param  {String}         ...els Element(s) to push
    * @return {Promise<Number>}       Resulting length of the list
    */
-  push(...els: StringOrObject[]): Promise<number> {
+  push(...els: T[]): Promise<number> {
     return this.useJSON
       ? this.call("RPUSH").apply(
           this,
@@ -197,7 +197,7 @@ export class List extends Base {
    * @param  {Number}         [end=null] End point index
    * @return {Promise<Array>}            Resulting slice of List for given params
    */
-  slice(begin = 0, end: number | null = null): Promise<string[] | object[]> {
+  slice(begin = 0, end: number | null = null): Promise<T[]> {
     switch (true) {
       case end === null && begin < 0:
         end = -1;
@@ -237,7 +237,7 @@ export class List extends Base {
    * @param  {String}          el  Element to insert
    * @return {Promise<Number>}     Resulting list length
    */
-  insertAfter(key: string, el: StringOrObject): Promise<number> {
+  insertAfter(key: string, el: T): Promise<number> {
     return this.useJSON
       ? this.call("LINSERT")("after", key, json.toJSON(el))
       : this.call("LINSERT")("after", key, el);
@@ -261,7 +261,7 @@ export class List extends Base {
    * @param  {String}          el  Element to insert
    * @return {Promise<Number>}     Resulting list length
    */
-  insertBefore(key: number, el: StringOrObject): Promise<number> {
+  insertBefore(key: number, el: T): Promise<number> {
     return this.useJSON
       ? this.call("LINSERT")("before", key, json.toJSON(el))
       : this.call("LINSERT")("before", key, el);
@@ -284,9 +284,9 @@ export class List extends Base {
    * })()
    *
    * @param  {Number}                 index Index to get element at
-   * @return {Promise<?String|Object>}      Value under given index or null
+   * @return {Promise<T>}      Value under given index or null
    */
-  getElementAt(index: number): Promise<StringOrObject> {
+  getElementAt(index: number): Promise<T> {
     return this.useJSON
       ? this.call("LINDEX")(index).then(json.parse)
       : this.call("LINDEX")(index);
@@ -316,7 +316,7 @@ export class List extends Base {
    *
    * @throws {Error} When index is out of range (AKA greater than list.length())
    */
-  setElementAt(index: number, value: StringOrObject): Promise<void> {
+  setElementAt(index: number, value: T): Promise<void> {
     return this.useJSON
       ? this.call("LSET")(index, json.toJSON(value))
       : this.call("LSET")(index, value);

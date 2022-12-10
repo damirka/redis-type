@@ -11,7 +11,7 @@ import { IndexedObjects, IndexedStrings } from "./types";
  * await human.set('alice', { isHuman: 'definitely' });
  * await human.set('damir', { isHuman: 'could be' });
  */
-export class Hash extends Base {
+export class Hash<T> extends Base {
   /**
    * Get the length of the hash (keys length)
    *
@@ -65,7 +65,7 @@ export class Hash extends Base {
    * @param  {String}  key   Key to set
    * @param  {String}  value Value to set under given key
    */
-  set(key: string, value: object | string): Promise<void> {
+  set(key: string, value: T): Promise<void> {
     return this.useJSON
       ? this.call("HSET")(key, json.toJSON(value))
       : this.call("HSET")(key, value);
@@ -79,7 +79,7 @@ export class Hash extends Base {
    *
    * @param  {String} key Key to get from hash
    */
-  get(key: string): Promise<string | object> {
+  get(key: string): Promise<T> {
     return this.useJSON
       ? this.call("HGET")(key).then(json.parse)
       : this.call("HGET")(key);
@@ -91,7 +91,7 @@ export class Hash extends Base {
    * - Redis command: [HVALS] {@link https://redis.io/commands/hvals}
    * - JavaScript analogy: [Map.prototype.values] {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/values}
    */
-  values(): Promise<string[] | object[]> {
+  values(): Promise<T[]> {
     return this.useJSON
       ? this.call("HVALS")().then(json.parseArray)
       : this.call("HVALS")();
@@ -109,7 +109,7 @@ export class Hash extends Base {
    * - JavaScript analogy: [Map.prototype.entries] {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/entries}
    *
    */
-  entries(): Promise<[string, string | object][]> {
+  entries(): Promise<[string, T][]> {
     return this.getAll().then(function(obj) {
       if (obj === null) {
         return [];
@@ -130,7 +130,7 @@ export class Hash extends Base {
    *
    * @param {String[]} keys Keys to get values for
    */
-  getMul(keys: string[]): Promise<string[] | object[]> {
+  getMul(keys: string[]): Promise<T[]> {
     return this.useJSON
       ? this.call("HMGET")(keys).then(json.parseArray)
       : this.call("HMGET")(keys);
@@ -143,7 +143,7 @@ export class Hash extends Base {
    * - Redis command: [HGETALL] {@link https://redis.io/commands/hgetall}
    * - JavaScript analogy: none
    */
-  getAll(): Promise<IndexedObjects | IndexedStrings> {
+  getAll(): Promise<{ [key: string]: T }> {
     return this.useJSON
       ? this.call("HGETALL")().then(json.parseObjectValues)
       : this.call("HGETALL")();
@@ -159,7 +159,7 @@ export class Hash extends Base {
    * @param   {Object}  valuesObj Object with key-value pairs to set
    * @returns {Promise}
    */
-  setMul(valuesObj: IndexedObjects) {
+  setMul(valuesObj: { [key: string]: T }) {
     return this.useJSON
       ? this.call("HMSET")(json.stringifyObjectValues(valuesObj))
       : this.call("HMSET")(valuesObj);
