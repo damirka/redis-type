@@ -18,8 +18,14 @@ export { Hash, List, Set };
  */
 export function bind(client: RedisClientType) {
     return {
-        Hash: (name: string, useJSON: boolean = false) => new Hash(client, name, useJSON),
-        List: (name: string, useJSON: boolean = false) => new List(client, name, useJSON),
-        Set: (name: string, useJSON: boolean = false) => new Set(client, name, useJSON)
+        Hash<T>(name: string, useJSON: boolean = false) {
+            return new Hash<T>(client, name, useJSON);
+        },
+        List<T>(name: string, useJSON: boolean = false) {
+            return new List<T>(client, name, useJSON);
+        },
+        Set(name: string, useJSON: boolean = false) {
+            return new Set(client, name, useJSON);
+        }
     };
 }
